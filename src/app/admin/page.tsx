@@ -661,7 +661,7 @@ export default function AdminDashboard() {
                       />
                     </label>
                     <span className="text-xs">OR</span>
-                    <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="URL..." className="flex-grow px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm" />
+                    <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="URL..." className="flex-grow px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm" />
                   </div>
                 </div>
 
