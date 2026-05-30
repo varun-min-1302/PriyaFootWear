@@ -58,7 +58,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Product Image Wrapper */}
         <div className="absolute inset-4">
           <Image
-            src={product.images[0]}
+            src={product.images[0] || "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800"}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

@@ -200,7 +200,10 @@ export default function AdminDashboard() {
 
     try {
       const uploadedUrl = await uploadImageIfPresent();
-      const finalImageUrl = uploadedUrl || (imageUrl.trim() ? imageUrl.trim() : editingProduct.images[0]);
+      let finalImageUrl = uploadedUrl || (imageUrl.trim() ? imageUrl.trim() : editingProduct.images[0]);
+      if (!finalImageUrl) {
+        finalImageUrl = "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800";
+      }
 
       const sizes = sizesInput.split(",").map((s) => s.trim()).filter(Boolean);
       const colors = colorsInput.split(",").map((c) => c.trim()).filter(Boolean);

@@ -24,19 +24,19 @@ export async function generateMetadata({ params }: PageProps) {
   }
 
   return {
-    title: `${product.name} | Priya FootWear`,
+    title: `${product.name} | Priya Footwear`,
     description: product.description,
     openGraph: {
-      title: `${product.name} | Priya FootWear`,
+      title: product.name,
       description: product.description,
-      images: product.images ? [{ url: product.images[0] }] : [],
+      images: product.images && product.images[0] ? [{ url: product.images[0] }] : [{ url: "/placeholder.jpg" }],
     },
     twitter: {
       card: "summary_large_image",
       title: product.name,
       description: product.description,
-      images: product.images ? [product.images[0]] : [],
-    }
+      images: product.images && product.images[0] ? [product.images[0]] : ["/placeholder.jpg"],
+    },
   };
 }
 
