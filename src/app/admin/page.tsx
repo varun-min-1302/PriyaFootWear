@@ -105,8 +105,8 @@ export default function AdminDashboard() {
   const [description, setDescription] = useState("");
   const [sizesInput, setSizesInput] = useState("7, 8, 9, 10, 11");
   const [colorsInput, setColorsInput] = useState("Black, Brown");
-  const [imageUrl, setImageUrl] = useState("");
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [imageUrls, setImageUrls] = useState("");
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [featured, setFeatured] = useState(false);
   const [newArrival, setNewArrival] = useState(false);
 
@@ -124,34 +124,38 @@ export default function AdminDashboard() {
     setDescription(product.description);
     setSizesInput(product.sizes.join(", "));
     setColorsInput(product.colors.join(", "));
-    setImageUrl(product.images[0] || "");
-    setUploadFile(null);
+    setImageUrls(product.images.join(", "));
+    setUploadFiles([]);
     setFeatured(product.featured);
     setNewArrival(product.newArrival);
     setIsEditOpen(true);
   };
 
-  const uploadImageIfPresent = async (): Promise<string | null> => {
-    if (!uploadFile) return null;
+  const uploadImagesIfPresent = async (): Promise<string[]> => {
+    if (uploadFiles.length === 0) return [];
     
-    const fileExt = uploadFile.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-    const filePath = `public/${fileName}`;
+    const uploadedUrls: string[] = [];
+    for (const file of uploadFiles) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `public/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('product-images')
-      .upload(filePath, uploadFile);
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(filePath, file);
 
-    if (uploadError) {
-      console.error("Upload error", uploadError);
-      return null;
+      if (uploadError) {
+        console.error("Upload error", uploadError);
+        continue;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(filePath);
+
+      uploadedUrls.push(publicUrl);
     }
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('product-images')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
+    return uploadedUrls;
   };
 
   const handleAddSubmit = async (e: React.FormEvent) => {
@@ -160,8 +164,15 @@ export default function AdminDashboard() {
     setIsSubmitting(true);
 
     try {
-      const uploadedUrl = await uploadImageIfPresent();
-      const finalImageUrl = uploadedUrl || (imageUrl.trim() ? imageUrl.trim() : "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800");
+      const uploadedUrls = await uploadImagesIfPresent();
+      
+      let finalImageUrls = uploadedUrls.length > 0 
+        ? uploadedUrls 
+        : imageUrls.split(",").map(url => url.trim()).filter(Boolean);
+
+      if (finalImageUrls.length === 0) {
+        finalImageUrls = ["https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800"];
+      }
 
       const sizes = sizesInput.split(",").map((s) => s.trim()).filter(Boolean);
       const colors = colorsInput.split(",").map((c) => c.trim()).filter(Boolean);
@@ -176,7 +187,7 @@ export default function AdminDashboard() {
         description: description.trim(),
         sizes,
         colors,
-        images: [finalImageUrl],
+        images: finalImageUrls,
         featured,
         "newArrival": newArrival,
       };
@@ -199,10 +210,16 @@ export default function AdminDashboard() {
     setIsSubmitting(true);
 
     try {
-      const uploadedUrl = await uploadImageIfPresent();
-      let finalImageUrl = uploadedUrl || (imageUrl.trim() ? imageUrl.trim() : editingProduct.images[0]);
-      if (!finalImageUrl) {
-        finalImageUrl = "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800";
+      const uploadedUrls = await uploadImagesIfPresent();
+      
+      let finalImageUrls = uploadedUrls.length > 0 
+        ? uploadedUrls 
+        : imageUrls.split(",").map(url => url.trim()).filter(Boolean);
+        
+      if (finalImageUrls.length === 0 && editingProduct.images.length > 0) {
+        finalImageUrls = editingProduct.images;
+      } else if (finalImageUrls.length === 0) {
+        finalImageUrls = ["https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800"];
       }
 
       const sizes = sizesInput.split(",").map((s) => s.trim()).filter(Boolean);
@@ -216,7 +233,7 @@ export default function AdminDashboard() {
         description: description.trim(),
         sizes,
         colors,
-        images: [finalImageUrl],
+        images: finalImageUrls,
         featured,
         "newArrival": newArrival,
       };
@@ -269,8 +286,8 @@ export default function AdminDashboard() {
     setDescription("");
     setSizesInput("7, 8, 9, 10, 11");
     setColorsInput("Black, Brown");
-    setImageUrl("");
-    setUploadFile(null);
+    setImageUrls("");
+    setUploadFiles([]);
     setFeatured(false);
     setNewArrival(false);
     setEditingProduct(null);
@@ -648,20 +665,20 @@ export default function AdminDashboard() {
                   <label className="text-xs uppercase tracking-widest text-muted-foreground font-extrabold block">Product Image</label>
                   <div className="flex gap-3 items-center">
                     <label className="flex-shrink-0 px-4 py-3 bg-neutral-200 dark:bg-neutral-800 text-xs font-bold uppercase rounded-xl cursor-pointer">
-                      <span>Upload File</span>
+                      <span>Upload Files</span>
                       <input 
-                        type="file" accept="image/*" className="hidden" 
+                        type="file" multiple accept="image/*" className="hidden" 
                         onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setUploadFile(file);
-                            setImageUrl(URL.createObjectURL(file));
+                          const files = Array.from(e.target.files || []);
+                          if (files.length > 0) {
+                            setUploadFiles(files);
+                            setImageUrls(files.map(f => URL.createObjectURL(f)).join(", "));
                           }
                         }}
                       />
                     </label>
                     <span className="text-xs">OR</span>
-                    <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="URL..." className="flex-grow px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm" />
+                    <input type="text" value={imageUrls} onChange={(e) => setImageUrls(e.target.value)} placeholder="Comma separated URLs..." className="flex-grow px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm" />
                   </div>
                 </div>
 
