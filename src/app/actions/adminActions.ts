@@ -15,97 +15,124 @@ async function verifyAdmin() {
   return { supabase, user };
 }
 
-export async function createProductAction(productData: any) {
-  const { supabase } = await verifyAdmin();
+// Helper: create a service-role client for mutations so RLS
+// policies that depend on auth.uid() always pass after we've
+// already verified the caller is an admin.
+async function createServiceClient() {
+  const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
 
-  const { error: dbError } = await supabase
+function safeRevalidate() {
+  try {
+    revalidatePath("/admin");
+    revalidatePath("/products");
+    revalidatePath("/");
+  } catch (e) {
+    console.error("[revalidate] non-fatal error:", e);
+  }
+}
+
+export async function createProductAction(productData: any) {
+  // Verify the caller is a logged-in admin
+  await verifyAdmin();
+
+  // Use service role for the actual DB write
+  const supa = await createServiceClient();
+
+  const { error: dbError } = await supa
     .from("products")
     .insert([productData]);
 
   if (dbError) {
-    console.error("[Security] Failed to create product:", dbError.message);
-    throw new Error("Forbidden: You do not have permission to perform this action.");
+    console.error("[createProduct] Supabase error:", JSON.stringify(dbError, null, 2));
+    throw new Error(`Failed to create product: ${dbError.message}`);
   }
 
-  revalidatePath("/admin");
-  revalidatePath("/products");
-  revalidatePath("/");
+  safeRevalidate();
   return { success: true };
 }
 
 export async function updateProductAction(productId: string, productData: any) {
-  const { supabase } = await verifyAdmin();
+  // Verify the caller is a logged-in admin
+  await verifyAdmin();
 
-  const { error: dbError } = await supabase
+  // Use service role for the actual DB write
+  const supa = await createServiceClient();
+
+  console.log("[updateProduct] Updating product:", productId);
+  console.log("[updateProduct] Data:", JSON.stringify(productData, null, 2));
+
+  const { data, error: dbError } = await supa
     .from("products")
     .update(productData)
-    .eq("id", productId);
+    .eq("id", productId)
+    .select();
 
   if (dbError) {
-    console.error(`[Security] Failed to update product ${productId}:`, dbError.message);
-    throw new Error("Forbidden: You do not have permission to perform this action.");
+    console.error("[updateProduct] Supabase error:", JSON.stringify(dbError, null, 2));
+    throw new Error(`Failed to update product: ${dbError.message}`);
   }
 
-  revalidatePath("/admin");
-  revalidatePath("/products");
-  revalidatePath(`/products/${productData.slug}`);
-  revalidatePath("/");
+  console.log("[updateProduct] Success. Rows affected:", data?.length ?? 0);
+
+  safeRevalidate();
   return { success: true };
 }
 
 export async function deleteProductAction(productId: string) {
-  const { supabase } = await verifyAdmin();
+  await verifyAdmin();
+  const supa = await createServiceClient();
 
-  const { error: dbError } = await supabase
+  const { error: dbError } = await supa
     .from("products")
     .delete()
     .eq("id", productId);
 
   if (dbError) {
-    console.error(`[Security] Failed to delete product ${productId}:`, dbError.message);
-    throw new Error("Forbidden: You do not have permission to perform this action.");
+    console.error("[deleteProduct] Supabase error:", JSON.stringify(dbError, null, 2));
+    throw new Error(`Failed to delete product: ${dbError.message}`);
   }
 
-  revalidatePath("/admin");
-  revalidatePath("/products");
-  revalidatePath("/");
+  safeRevalidate();
   return { success: true };
 }
 
 export async function toggleFeaturedAction(productId: string, currentStatus: boolean) {
-  const { supabase } = await verifyAdmin();
+  await verifyAdmin();
+  const supa = await createServiceClient();
 
-  const { error: dbError } = await supabase
+  const { error: dbError } = await supa
     .from("products")
     .update({ featured: !currentStatus })
     .eq("id", productId);
 
   if (dbError) {
-    console.error(`[Security] Failed to toggle featured for ${productId}:`, dbError.message);
-    throw new Error("Forbidden: You do not have permission to perform this action.");
+    console.error("[toggleFeatured] Supabase error:", JSON.stringify(dbError, null, 2));
+    throw new Error(`Failed to toggle featured: ${dbError.message}`);
   }
 
-  revalidatePath("/admin");
-  revalidatePath("/products");
-  revalidatePath("/");
+  safeRevalidate();
   return { success: true };
 }
 
 export async function toggleNewArrivalAction(productId: string, currentStatus: boolean) {
-  const { supabase } = await verifyAdmin();
+  await verifyAdmin();
+  const supa = await createServiceClient();
 
-  const { error: dbError } = await supabase
+  const { error: dbError } = await supa
     .from("products")
     .update({ "newArrival": !currentStatus })
     .eq("id", productId);
 
   if (dbError) {
-    console.error(`[Security] Failed to toggle newArrival for ${productId}:`, dbError.message);
-    throw new Error("Forbidden: You do not have permission to perform this action.");
+    console.error("[toggleNewArrival] Supabase error:", JSON.stringify(dbError, null, 2));
+    throw new Error(`Failed to toggle new arrival: ${dbError.message}`);
   }
 
-  revalidatePath("/admin");
-  revalidatePath("/products");
-  revalidatePath("/");
+  safeRevalidate();
   return { success: true };
 }
