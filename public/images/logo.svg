@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Premium Crown and Wings concept in Gold -->
+  <path d="M20 75L35 30L50 50L65 30L80 75H20Z" fill="#D4AF37" />
+  <circle cx="35" cy="20" r="5" fill="#D4AF37" />
+  <circle cx="50" cy="40" r="5" fill="#D4AF37" />
+  <circle cx="65" cy="20" r="5" fill="#D4AF37" />
+  <path d="M25 82H75" stroke="#D4AF37" stroke-width="4" stroke-linecap="round" />
+</svg>

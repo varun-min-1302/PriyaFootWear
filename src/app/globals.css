@@ -1,26 +1,152 @@
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark, .dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  
+  --font-sans: var(--font-plus-jakarta-sans), system-ui, sans-serif;
+  --font-display: var(--font-outfit), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --background: #fafafa;
+  --foreground: #111111;
+  
+  --card: #ffffff;
+  --card-foreground: #111111;
+  
+  --popover: #ffffff;
+  --popover-foreground: #111111;
+  
+  --primary: #111111;
+  --primary-foreground: #ffffff;
+  
+  --secondary: #ffffff;
+  --secondary-foreground: #111111;
+  
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  
+  --accent: #d4af37;
+  --accent-foreground: #111111;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  
+  --success: #16a34a;
+  --success-foreground: #ffffff;
+  
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #d4af37;
+  
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: #0b0b0b;
+  --foreground: #fafafa;
+  
+  --card: #151515;
+  --card-foreground: #fafafa;
+  
+  --popover: #151515;
+  --popover-foreground: #fafafa;
+  
+  --primary: #ffffff;
+  --primary-foreground: #111111;
+  
+  --secondary: #111111;
+  --secondary-foreground: #ffffff;
+  
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
+  
+  --accent: #d4af37;
+  --accent-foreground: #0b0b0b;
+  
+  --destructive: #7f1d1d;
+  --destructive-foreground: #fafafa;
+  
+  --success: #15803d;
+  --success-foreground: #ffffff;
+  
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #d4af37;
+}
+
+/* Base styles override */
+html, body {
+  overflow-x: hidden; /* Prevent horizontal scrolling on mobile */
+  width: 100%;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-plus-jakarta-sans), system-ui, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Fluid Typography Utilities */
+.text-fluid-hero { font-size: clamp(2.5rem, 5vw + 1rem, 5rem); line-height: 1.1; }
+.text-fluid-h1 { font-size: clamp(2rem, 4vw + 0.5rem, 4rem); line-height: 1.1; }
+.text-fluid-h2 { font-size: clamp(1.5rem, 3vw + 0.5rem, 3rem); line-height: 1.2; }
+.text-fluid-h3 { font-size: clamp(1.25rem, 2vw + 0.5rem, 2rem); line-height: 1.2; }
+.text-fluid-body { font-size: clamp(0.875rem, 1vw + 0.5rem, 1.125rem); }
+.text-fluid-sm { font-size: clamp(0.75rem, 0.5vw + 0.5rem, 0.875rem); }
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Noise overlay effect for dark mode luxury aesthetic */
+.noise-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  content: "";
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
