@@ -18,6 +18,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://priya-foot-wear.vercel.app"),
   title: "Priya Foot Wear | Premium Men's Footwear Catalog",
   description: "Browse the exclusive collection of men's formal shoes, casual wear, sports footwear, sandals, and slippers at Priya Foot Wear. Premium quality, comfortable fit, and latest designs.",
   keywords: ["men footwear", "formal shoes", "casual shoes", "sports shoes", "sandals", "slippers", "Priya Foot Wear", "premium shoes"],
