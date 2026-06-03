@@ -54,7 +54,7 @@ export default function HomeClient({ featuredProducts, newArrivalProducts }: Hom
               No featured products available.
             </div>
           ) : (
-            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 xl:gap-8">
               {featuredProducts.map((product, idx) => (
                 <motion.div
                   key={product.id}

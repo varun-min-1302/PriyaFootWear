@@ -75,7 +75,7 @@ export default function NewArrivals({ products }: NewArrivalsProps) {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-20px" }}
               transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="flex-shrink-0 w-[280px] sm:w-[320px] md:w-[360px] snap-start"
+              className="flex-shrink-0 w-[160px] min-[400px]:w-[180px] sm:w-[260px] md:w-[320px] snap-start"
             >
               <ProductCard product={product} />
             </motion.div>

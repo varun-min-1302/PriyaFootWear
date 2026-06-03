@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "@/components/ProductCard";
-import { MessageSquare, PhoneCall, ChevronRight, Check, ZoomIn } from "lucide-react";
+import { MessageSquare, PhoneCall, ChevronRight, Check, ZoomIn, Share2 } from "lucide-react";
 import { Product } from "@/types/product";
 
 interface ProductDetailClientProps {
@@ -32,6 +32,25 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   }, [product]);
 
   // Format price in Indian Rupees
+  const handleShare = async () => {
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name} from Priya Footwear`,
+      url: `${window.location.origin}/products/${product.slug}`,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      navigator.clipboard.writeText(shareData.url);
+      alert("Link copied to clipboard!");
+    }
+  };
+
   const formattedPrice = new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
@@ -161,10 +180,19 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   ID: {product.id}
                 </span>
               </div>
-              
-              <h1 className="font-display font-black text-fluid-h2 tracking-tight leading-none">
-                {product.name}
-              </h1>
+              <div className="flex items-start justify-between gap-4">
+                <h1 className="font-display font-black text-fluid-h2 tracking-tight leading-none">
+                  {product.name}
+                </h1>
+                <button 
+                  onClick={handleShare}
+                  className="p-3 rounded-full bg-neutral-100 hover:bg-accent hover:text-accent-foreground text-foreground transition-all duration-300 shadow-sm flex-shrink-0"
+                  title="Share Product"
+                  aria-label="Share Product"
+                >
+                  <Share2 className="h-5 w-5" />
+                </button>
+              </div>
               
               {product.material && (
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
