@@ -146,7 +146,7 @@ export default function AdminDashboard() {
 
       if (uploadError) {
         console.error("Upload error", uploadError);
-        continue;
+        throw new Error(`Image upload failed: ${uploadError.message}. Make sure your account has admin permissions.`);
       }
 
       const { data: { publicUrl } } = supabase.storage
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
       
       let finalImageUrls = uploadedUrls.length > 0 
         ? uploadedUrls 
-        : imageUrls.split(",").map(url => url.trim()).filter(Boolean);
+        : imageUrls.split(",").map(url => url.trim()).filter(url => url && !url.startsWith("blob:"));
 
       if (finalImageUrls.length === 0) {
         finalImageUrls = ["https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=800"];
@@ -214,7 +214,7 @@ export default function AdminDashboard() {
       
       let finalImageUrls = uploadedUrls.length > 0 
         ? uploadedUrls 
-        : imageUrls.split(",").map(url => url.trim()).filter(Boolean);
+        : imageUrls.split(",").map(url => url.trim()).filter(url => url && !url.startsWith("blob:"));
         
       if (finalImageUrls.length === 0 && editingProduct.images.length > 0) {
         finalImageUrls = editingProduct.images;

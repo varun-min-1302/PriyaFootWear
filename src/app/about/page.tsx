@@ -162,7 +162,7 @@ export default function AboutPage() {
           <div className="text-center max-w-2xl mx-auto space-y-4">
             <span className="text-xs font-bold tracking-[0.25em] uppercase text-accent">Visual Tour</span>
             <h2 className="text-fluid-h3 font-display font-black tracking-tight">Boutique Store Gallery</h2>
-            <p className="text-sm text-muted-foreground">Take a peek inside our New Delhi retail showroom, housing over 2,000+ distinct footwear fittings.</p>
+            <p className="text-sm text-muted-foreground">Take a peek inside our Bhainsa retail showroom, housing over 2,000+ distinct footwear fittings.</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

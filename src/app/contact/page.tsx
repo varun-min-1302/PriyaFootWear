@@ -184,10 +184,11 @@ export default function ContactPage() {
                   <MapPin className="h-5 w-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-foreground">Our Showroom Address</h4>
+                  <h4 className="font-bold text-foreground">Priya Foot Wear</h4>
                   <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                    123 Main Bazar Road, Shopping Plaza,<br />
-                    Opposite Town Hall, New Delhi, 110001
+                    Shop # 02, Jeep Stand,<br />
+                    Opposite Gandhi Ganj, Beside Nerolac Paint Shop,<br />
+                    Bhainsa, Telangana - 504103, India
                   </p>
                 </div>
               </li>
@@ -236,18 +237,35 @@ export default function ContactPage() {
             </ul>
           </div>
 
-          {/* Styled Google Maps iframe */}
-          <div className="rounded-3xl border border-border/40 overflow-hidden h-[250px] relative shadow-sm">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d112000.52841968853!2d77.12351996155601!3d28.644146197177652!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd5b347eb62d%3A0x37205b715389640!2sNew%20Delhi%2C%20Delhi!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
-              width="100%"
-              height="100%"
-              style={{ border: 0, filter: "grayscale(1) invert(0.9) contrast(1.2)" }}
-              allowFullScreen={false}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Priya Foot Wear Showroom Google Map Location"
-            />
+          {/* Styled Google Maps iframe & Directions */}
+          <div className="rounded-3xl border border-border/40 overflow-hidden relative shadow-sm bg-card flex flex-col">
+            <div className="h-[250px] w-full">
+              <iframe
+                src="https://maps.google.com/maps?q=Jeep+Stand,+Opposite+Gandhi+Ganj,+Bhainsa,+Telangana+504103&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0, filter: "grayscale(0.8) contrast(1.1) opacity(0.9)" }}
+                allowFullScreen={false}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Priya Foot Wear Showroom Google Map Location"
+              />
+            </div>
+            <div className="p-5 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/40">
+              <div>
+                <h4 className="font-bold text-sm text-foreground">Priya Foot Wear</h4>
+                <p className="text-xs text-muted-foreground mt-0.5">Shop # 02, Jeep Stand, Bhainsa, TS</p>
+              </div>
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination=Jeep+Stand,+Opposite+Gandhi+Ganj,+Bhainsa,+Telangana+504103"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-accent-foreground font-bold text-xs uppercase tracking-widest hover:bg-accent/90 transition-all w-full sm:w-auto text-center shadow-md active:scale-95"
+              >
+                <MapPin className="h-4 w-4" />
+                Get Directions
+              </a>
+            </div>
           </div>
         </div>
       </div>

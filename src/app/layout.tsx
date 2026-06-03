@@ -48,6 +48,46 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground transition-colors duration-300 relative">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ShoeStore",
+              "name": "Priya Foot Wear",
+              "image": "https://priya-foot-wear.vercel.app/placeholder.jpg",
+              "@id": "https://priya-foot-wear.vercel.app",
+              "url": "https://priya-foot-wear.vercel.app",
+              "telephone": "+918374284265",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "Shop # 02, Jeep Stand, Opposite Gandhi Ganj, Beside Nerolac Paint Shop",
+                "addressLocality": "Bhainsa",
+                "addressRegion": "Telangana",
+                "postalCode": "504103",
+                "addressCountry": "IN"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": 19.1023,
+                "longitude": 77.9620
+              },
+              "openingHoursSpecification": {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday"
+                ],
+                "opens": "10:00",
+                "closes": "20:30"
+              }
+            })
+          }}
+        />
         <ThemeProvider defaultTheme="dark">
           {/* Subtle design texture */}
           <div className="noise-overlay" />

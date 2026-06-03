@@ -18,9 +18,14 @@ export default function Footer() {
                 Priya Footwear
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground">
-              © copyright Priya Footwear 2024. All rights reserved.
-            </p>
+            <div className="space-y-1.5 pt-2">
+              <p className="text-sm text-muted-foreground">
+                © 2026 Priya Foot Wear. All rights reserved.
+              </p>
+              <p className="text-xs text-muted-foreground/60 text-center md:text-left">
+                Made with ❤️ by <Link href="#" className="font-medium hover:text-foreground transition-colors">Varun</Link>
+              </p>
+            </div>
           </div>
 
           {/* Links Columns */}
@@ -43,11 +48,17 @@ export default function Footer() {
           </div>
 
           <div className="space-y-6">
-            <h4 className="font-bold text-sm text-foreground">Staff</h4>
-            <ul className="space-y-4 text-sm text-muted-foreground">
-              <li><Link href="/admin" className="hover:text-foreground transition-colors">Staff Login</Link></li>
-              <li><Link href="/contact" className="hover:text-foreground transition-colors">Support</Link></li>
-            </ul>
+            <h4 className="font-bold text-sm text-foreground">Visit Us</h4>
+            <div className="text-sm text-muted-foreground leading-relaxed">
+              <p>Shop # 02, Jeep Stand,</p>
+              <p>Opposite Gandhi Ganj,</p>
+              <p>Beside Nerolac Paint Shop,</p>
+              <p>Bhainsa, Telangana - 504103</p>
+              <p className="mt-2 text-foreground font-semibold">India</p>
+            </div>
+            <div className="pt-2">
+              <Link href="/admin" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Admin Login</Link>
+            </div>
           </div>
 
         </div>
