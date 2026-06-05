@@ -3,6 +3,8 @@ import CatalogContent from "./CatalogContent";
 import { createClient } from "@/lib/supabase/server";
 import { Product } from "@/types/product";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Men's Collection | Priya FootWear",
   description: "Browse our premium range of formal wear, casual sneakers, sports running shoes, and comfortable home slides.",

@@ -19,8 +19,10 @@ export default function ProductCard({ product }: ProductCardProps) {
   }).format(product.price);
 
   // Generate pre-filled WhatsApp message
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://priya-foot-wear.vercel.app";
+  const productLink = `${origin}/products/${product.slug}`;
   const whatsappUrl = `https://wa.me/918374284265?text=${encodeURIComponent(
-    `Hi Priya Foot Wear,\n\nI am interested in:\nProduct Name: ${product.name}\nProduct ID: ${product.id}\n\nPlease share availability.`
+    `Hi Priya Foot Wear,\n\nI am interested in:\nProduct Name: ${product.name}\nProduct ID: ${product.id}\nLink: ${productLink}\n\nPlease share availability.`
   )}`;
 
   const handleShare = async (e: React.MouseEvent) => {

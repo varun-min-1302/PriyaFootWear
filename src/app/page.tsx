@@ -2,6 +2,8 @@ import HomeClient from "./HomeClient";
 import { createClient } from "@/lib/supabase/server";
 import { Product } from "@/types/product";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const supabase = await createClient();
 

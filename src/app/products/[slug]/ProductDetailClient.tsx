@@ -58,7 +58,9 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   }).format(product.price);
 
   // Generate dynamic WhatsApp Message URL based on selection
-  const inquiryText = `Hi Priya Foot Wear,\n\nI am interested in:\nProduct Name: ${product.name}\nProduct ID: ${product.id}\nSize: ${selectedSize || "Not Selected"}\nColor: ${selectedColor || "Not Selected"}\n\nPlease share availability.`;
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://priya-foot-wear.vercel.app";
+  const productLink = `${origin}/products/${product.slug}`;
+  const inquiryText = `Hi Priya Foot Wear,\n\nI am interested in:\nProduct Name: ${product.name}\nProduct ID: ${product.id}\nSize: ${selectedSize || "Not Selected"}\nColor: ${selectedColor || "Not Selected"}\nLink: ${productLink}\n\nPlease share availability.`;
   const whatsappUrl = `https://wa.me/918374284265?text=${encodeURIComponent(inquiryText)}`;
 
   // Image zoom handler
