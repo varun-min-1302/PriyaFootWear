@@ -149,9 +149,15 @@ export async function uploadImageAction(formData: FormData) {
 
   const supa = await createServiceClient();
 
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
   const { error } = await supa.storage
     .from("product-images")
-    .upload(filePath, file);
+    .upload(filePath, buffer, {
+      contentType: file.type,
+      upsert: false
+    });
 
   if (error) {
     console.error("[uploadImage] Supabase error:", JSON.stringify(error, null, 2));
