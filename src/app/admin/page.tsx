@@ -6,7 +6,7 @@ import { Plus, Pencil, Trash2, Star, Sparkles, X, ShieldAlert, Archive, Lock, Ph
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { createProductAction, updateProductAction, deleteProductAction, toggleFeaturedAction, toggleNewArrivalAction } from "@/app/actions/adminActions";
+import { createProductAction, updateProductAction, deleteProductAction, toggleFeaturedAction, toggleNewArrivalAction, uploadImageAction } from "@/app/actions/adminActions";
 
 export default function AdminDashboard() {
   const supabase = createClient();
@@ -140,19 +140,11 @@ export default function AdminDashboard() {
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const filePath = `public/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('product-images')
-        .upload(filePath, file);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("filePath", filePath);
 
-      if (uploadError) {
-        console.error("Upload error", uploadError);
-        throw new Error(`Image upload failed: ${uploadError.message}. Make sure your account has admin permissions.`);
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
-
+      const { publicUrl } = await uploadImageAction(formData);
       uploadedUrls.push(publicUrl);
     }
     return uploadedUrls;

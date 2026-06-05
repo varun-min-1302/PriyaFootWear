@@ -136,3 +136,31 @@ export async function toggleNewArrivalAction(productId: string, currentStatus: b
   safeRevalidate();
   return { success: true };
 }
+
+export async function uploadImageAction(formData: FormData) {
+  await verifyAdmin();
+  
+  const file = formData.get("file") as File | null;
+  const filePath = formData.get("filePath") as string | null;
+
+  if (!file || !filePath) {
+    throw new Error("Missing file or filePath");
+  }
+
+  const supa = await createServiceClient();
+
+  const { error } = await supa.storage
+    .from("product-images")
+    .upload(filePath, file);
+
+  if (error) {
+    console.error("[uploadImage] Supabase error:", JSON.stringify(error, null, 2));
+    throw new Error(`Failed to upload image: ${error.message}`);
+  }
+
+  const { data: { publicUrl } } = supa.storage
+    .from("product-images")
+    .getPublicUrl(filePath);
+
+  return { publicUrl };
+}
