@@ -6,7 +6,8 @@ import ProductCard from "@/components/ProductCard";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import NewArrivals from "@/components/NewArrivals";
 import Testimonials from "@/components/Testimonials";
-import { MessageSquare, PhoneCall, ArrowRight, ShieldCheck } from "lucide-react";
+import RecentlyViewed from "@/components/RecentlyViewed";
+import { MessageSquare, PhoneCall, ArrowRight, ShieldCheck, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Product } from "@/types/product";
@@ -14,9 +15,10 @@ import { Product } from "@/types/product";
 interface HomeClientProps {
   featuredProducts: Product[];
   newArrivalProducts: Product[];
+  bestSellerProducts: Product[];
 }
 
-export default function HomeClient({ featuredProducts, newArrivalProducts }: HomeClientProps) {
+export default function HomeClient({ featuredProducts, newArrivalProducts, bestSellerProducts }: HomeClientProps) {
   return (
     <div className="flex flex-col min-h-screen">
       <Hero />
@@ -71,8 +73,54 @@ export default function HomeClient({ featuredProducts, newArrivalProducts }: Hom
         </div>
       </section>
 
+      {/* Best Sellers Section */}
+      <section className="py-24 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center gap-3 mb-12"
+          >
+            <div className="p-3 bg-neutral-100 dark:bg-neutral-900 rounded-xl">
+              <TrendingUp className="h-5 w-5 text-foreground" />
+            </div>
+            <div>
+              <span className="text-xs font-bold tracking-[0.25em] uppercase text-accent">
+                Customer Favorites
+              </span>
+              <h2 className="text-fluid-h2 font-display font-black tracking-tight">
+                Best Sellers
+              </h2>
+            </div>
+          </motion.div>
+
+          {bestSellerProducts.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              No best sellers yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 xl:gap-8">
+              {bestSellerProducts.map((product, idx) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.5, delay: idx * 0.1 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
       <WhyChooseUs />
       <NewArrivals products={newArrivalProducts} />
+      <RecentlyViewed />
       <Testimonials />
 
       <section className="py-28 bg-neutral-100 dark:bg-neutral-950 text-foreground relative overflow-hidden">

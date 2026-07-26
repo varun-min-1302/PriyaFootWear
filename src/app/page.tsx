@@ -7,10 +7,19 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const supabase = await createClient();
 
+  // Fetch best sellers (highest views/enquiries)
+  const { data: bestSellerData } = await supabase
+    .from("products")
+    .select("*")
+    .eq("status", "published")
+    .order("view_count", { ascending: false })
+    .limit(4);
+
   // Fetch featured products
   const { data: featuredData } = await supabase
     .from("products")
     .select("*")
+    .eq("status", "published")
     .eq("featured", true)
     .order("created_at", { ascending: false })
     .limit(4);
@@ -19,6 +28,7 @@ export default async function Home() {
   const { data: newArrivalData } = await supabase
     .from("products")
     .select("*")
+    .eq("status", "published")
     .eq("newArrival", true)
     .order("created_at", { ascending: false })
     .limit(10);
@@ -41,11 +51,13 @@ export default async function Home() {
 
   const featuredProducts: Product[] = (featuredData || []).map(formatProduct);
   const newArrivalProducts: Product[] = (newArrivalData || []).map(formatProduct);
+  const bestSellerProducts: Product[] = (bestSellerData || []).map(formatProduct);
 
   return (
     <HomeClient 
       featuredProducts={featuredProducts} 
-      newArrivalProducts={newArrivalProducts} 
+      newArrivalProducts={newArrivalProducts}
+      bestSellerProducts={bestSellerProducts}
     />
   );
 }

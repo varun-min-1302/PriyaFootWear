@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "@/components/ProductCard";
-import { MessageSquare, PhoneCall, ChevronRight, Check, ZoomIn, Share2 } from "lucide-react";
+import { MessageSquare, PhoneCall, ChevronRight, Check, ZoomIn, Share2, Heart, Scale, Eye } from "lucide-react";
 import { Product } from "@/types/product";
+import { useCustomerExperience } from "@/context/CustomerExperienceContext";
+import { recordProductView, recordProductShare, recordProductEnquiry } from "@/app/actions/productActions";
 
 interface ProductDetailClientProps {
   product: Product;
@@ -21,6 +23,10 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     transform: "scale(1)",
     transformOrigin: "center",
   });
+  
+  const { toggleWishlist, isInWishlist, toggleCompare, isInCompare, addRecentlyViewed } = useCustomerExperience();
+  const isWishlisted = isInWishlist(product.id);
+  const isCompared = isInCompare(product.id);
 
   // Pre-select first size and color on product load
   useEffect(() => {
@@ -32,8 +38,13 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         if (product.colors.length > 0) setSelectedColor(product.colors[0]);
        
         setActiveImageIndex(0);
+      // register recently viewed
+      addRecentlyViewed(product.id);
+      
+      // record view analytics
+      recordProductView(product.id).catch(console.error);
     }
-  }, [product]);
+  }, [product, addRecentlyViewed]);
 
   // Format price in Indian Rupees
   const handleShare = async () => {
@@ -46,11 +57,13 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     if (navigator.share) {
       try {
         await navigator.share(shareData);
+        await recordProductShare(product.id);
       } catch (err) {
         console.error("Error sharing:", err);
       }
     } else {
       navigator.clipboard.writeText(shareData.url);
+      await recordProductShare(product.id);
       alert("Link copied to clipboard!");
     }
   };
@@ -205,6 +218,14 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   Material: <span className="text-foreground">{product.material}</span>
                 </p>
               )}
+              
+              {/* Popularity / Views */}
+              {(product.view_count || 0) > 0 && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium pt-1">
+                  <Eye className="h-4 w-4" />
+                  {product.view_count} people viewed this
+                </div>
+              )}
             </div>
 
             {/* Price */}
@@ -291,6 +312,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => recordProductEnquiry(product.id).catch(console.error)}
                 className="flex-grow flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-widest transition-all duration-300 shadow-lg shadow-emerald-950/10 hover:shadow-emerald-950/20 active:scale-95"
               >
                 <MessageSquare className="h-4.5 w-4.5" />
@@ -304,6 +326,21 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 <PhoneCall className="h-4.5 w-4.5 text-accent" />
                 Call Store
               </a>
+              
+              <button 
+                onClick={() => toggleWishlist(product.id)}
+                className={`flex-grow sm:flex-grow-0 flex items-center justify-center gap-3 px-6 py-5 rounded-2xl border font-extrabold text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 ${isWishlisted ? 'bg-accent border-accent text-accent-foreground' : 'border-border/80 text-muted-foreground hover:border-foreground/30 hover:text-foreground'}`}
+              >
+                <Heart className={`h-4.5 w-4.5 ${isWishlisted ? 'fill-current' : ''}`} />
+              </button>
+
+              <button 
+                onClick={() => toggleCompare(product.id)}
+                className={`flex-grow sm:flex-grow-0 flex items-center justify-center gap-3 px-6 py-5 rounded-2xl border font-extrabold text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 hidden lg:flex ${isCompared ? 'bg-foreground border-foreground text-background' : 'border-border/80 text-muted-foreground hover:border-foreground/30 hover:text-foreground'}`}
+                title="Compare Product"
+              >
+                <Scale className="h-4.5 w-4.5" />
+              </button>
             </div>
           </div>
         </div>

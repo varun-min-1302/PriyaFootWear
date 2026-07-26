@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import BackToTop from "@/components/BackToTop";
 import { CustomerExperienceProvider } from "@/context/CustomerExperienceContext";
 
 const outfit = Outfit({
@@ -97,6 +99,8 @@ export default function RootLayout({
             <Navbar />
             <main className="flex-grow flex flex-col">{children}</main>
             <Footer />
+            <MobileBottomNav />
+            <BackToTop />
           </CustomerExperienceProvider>
         </ThemeProvider>
       </body>

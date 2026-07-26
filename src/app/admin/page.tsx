@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Product } from "@/types/product";
-import { Plus, Pencil, Trash2, Star, Sparkles, X, ShieldAlert, Archive, Lock, Phone, Eye, EyeOff, LogIn, LogOut, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Sparkles, X, ShieldAlert, Archive, Lock, Phone, Eye, EyeOff, LogIn, LogOut, Loader2, Copy, TrendingUp, MessageCircle, Share2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -83,6 +83,10 @@ export default function AdminDashboard() {
         material: row.material,
         featured: row.featured,
         newArrival: row.newArrival,
+        status: row.status,
+        view_count: row.view_count || 0,
+        enquiry_count: row.enquiry_count || 0,
+        share_count: row.share_count || 0,
         createdAt: row.created_at || row.createdAt,
       }));
       setProducts(formatted);
@@ -148,6 +152,7 @@ export default function AdminDashboard() {
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [featured, setFeatured] = useState(false);
   const [newArrival, setNewArrival] = useState(false);
+  const [status, setStatus] = useState<"published" | "draft" | "archived" | "coming_soon">("published");
 
   // Stats calculation
   const totalProducts = products.length;
@@ -167,7 +172,25 @@ export default function AdminDashboard() {
     setUploadFiles([]);
     setFeatured(product.featured);
     setNewArrival(product.newArrival);
+    setStatus(product.status || "published");
     setIsEditOpen(true);
+  };
+
+  const handleDuplicateClick = (product: Product) => {
+    setEditingProduct(null); // It's a new product, not editing
+    setName(`${product.name} (Copy)`);
+    setPrice(product.price);
+    setCategory(product.category as "Formal" | "Casual" | "Sports" | "Sandals" | "Slippers" | "Belts");
+    setMaterial(product.material || "");
+    setDescription(product.description);
+    setSizesInput(product.sizes.join(", "));
+    setColorsInput(product.colors.join(", "));
+    setImageUrls(product.images.join(", "));
+    setUploadFiles([]);
+    setFeatured(false);
+    setNewArrival(false);
+    setStatus("draft"); // Default to draft for duplicates
+    setIsAddOpen(true);
   };
 
   const uploadImagesIfPresent = async (): Promise<string[]> => {
@@ -221,6 +244,7 @@ export default function AdminDashboard() {
         images: finalImageUrls,
         featured,
         "newArrival": newArrival,
+        status,
       };
 
       await createProductAction(productData);
@@ -267,6 +291,7 @@ export default function AdminDashboard() {
         images: finalImageUrls,
         featured,
         "newArrival": newArrival,
+        status,
       };
 
       await updateProductAction(editingProduct.id, productData);
@@ -309,6 +334,16 @@ export default function AdminDashboard() {
     }
   };
 
+  const toggleStatus = async (id: string, current: string) => {
+    try {
+      const nextStatus = current === "published" ? "draft" : current === "draft" ? "archived" : "published";
+      await updateProductAction(id, { status: nextStatus });
+      await fetchProducts();
+    } catch (err: unknown) {
+      alert((err as Error).message || "Error toggling status");
+    }
+  };
+
   const resetForm = () => {
     setName("");
     setPrice(1999);
@@ -321,6 +356,7 @@ export default function AdminDashboard() {
     setUploadFiles([]);
     setFeatured(false);
     setNewArrival(false);
+    setStatus("published");
     setEditingProduct(null);
   };
 
@@ -539,6 +575,12 @@ export default function AdminDashboard() {
                           </button>
                         </div>
                         <div className="flex justify-end gap-2">
+                          <button onClick={() => toggleStatus(p.id, p.status || 'published')} className={`text-[10px] font-bold uppercase px-2 py-1 rounded-lg border ${p.status === 'published' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30' : p.status === 'draft' ? 'bg-orange-500/10 text-orange-600 border-orange-500/30' : 'bg-neutral-500/10 text-neutral-600 border-neutral-500/30'}`}>
+                            {p.status || 'published'}
+                          </button>
+                          <button onClick={() => handleDuplicateClick(p)} className="p-2 rounded-lg border border-border/80 text-muted-foreground hover:text-foreground">
+                            <Copy className="h-4 w-4" />
+                          </button>
                           <button onClick={() => handleEditClick(p)} className="p-2 rounded-lg border border-border/80 text-muted-foreground hover:text-accent">
                             <Pencil className="h-4 w-4" />
                           </button>
@@ -560,6 +602,7 @@ export default function AdminDashboard() {
                         <th className="py-4 px-6">Category</th>
                         <th className="py-4 px-6">Price</th>
                         <th className="py-4 px-6">Status Details</th>
+                        <th className="py-4 px-6">Analytics</th>
                         <th className="py-4 px-6 text-right">Actions</th>
                       </tr>
                     </thead>
@@ -597,8 +640,21 @@ export default function AdminDashboard() {
                               </button>
                             </div>
                           </td>
+                          <td className="py-4 px-6">
+                            <div className="flex flex-col gap-1 text-[10px] font-bold text-muted-foreground">
+                              <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {p.view_count || 0} Views</span>
+                              <span className="flex items-center gap-1"><MessageCircle className="h-3 w-3" /> {p.enquiry_count || 0} Enquiries</span>
+                              <span className="flex items-center gap-1"><Share2 className="h-3 w-3" /> {p.share_count || 0} Shares</span>
+                            </div>
+                          </td>
                           <td className="py-4 px-6 text-right">
                             <div className="flex justify-end gap-2.5">
+                              <button onClick={() => toggleStatus(p.id, p.status || 'published')} className={`text-[10px] font-bold uppercase px-2 py-1 rounded-lg border ${p.status === 'published' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30' : p.status === 'draft' ? 'bg-orange-500/10 text-orange-600 border-orange-500/30' : 'bg-neutral-500/10 text-neutral-600 border-neutral-500/30'}`}>
+                                {p.status || 'published'}
+                              </button>
+                              <button onClick={() => handleDuplicateClick(p)} className="p-2 rounded-lg border border-border/80 text-muted-foreground hover:text-foreground" title="Duplicate">
+                                <Copy className="h-4 w-4" />
+                              </button>
                               <button onClick={() => handleEditClick(p)} className="p-2 rounded-lg border border-border/80 text-muted-foreground hover:text-accent">
                                 <Pencil className="h-4 w-4" />
                               </button>
@@ -668,6 +724,15 @@ export default function AdminDashboard() {
                       <option value="Sandals">Sandals</option>
                       <option value="Slippers">Slippers</option>
                       <option value="Belts">Belts</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs uppercase tracking-widest text-muted-foreground font-extrabold block">Status</label>
+                    <select value={status} onChange={(e) => setStatus(e.target.value as any)} className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm">
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                      <option value="archived">Archived</option>
+                      <option value="coming_soon">Coming Soon</option>
                     </select>
                   </div>
                   <div className="space-y-2">

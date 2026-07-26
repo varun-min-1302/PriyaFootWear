@@ -12,6 +12,11 @@ export interface Product {
   newArrival: boolean;
   material?: string; // Optional material details
   createdAt: string; // ISO String
+  original_price?: number | null;
+  enquiry_count?: number;
+  share_count?: number;
+  view_count?: number;
+  status?: "published" | "draft" | "archived" | "coming_soon";
 }
 
 export interface FilterState {

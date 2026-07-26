@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { MessageSquare, ArrowUpRight, Share2 } from "lucide-react";
+import { MessageSquare, ArrowUpRight, Share2, Heart, Scale, Eye } from "lucide-react";
 import { Product } from "@/types/product";
 import { motion } from "framer-motion";
+import { useCustomerExperience } from "@/context/CustomerExperienceContext";
 
 interface ProductCardProps {
   product: Product;
@@ -17,6 +18,10 @@ export default function ProductCard({ product }: ProductCardProps) {
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(product.price);
+
+  const { toggleWishlist, isInWishlist, toggleCompare, isInCompare } = useCustomerExperience();
+  const isWishlisted = isInWishlist(product.id);
+  const isCompared = isInCompare(product.id);
 
   // Generate pre-filled WhatsApp message
   const origin = typeof window !== "undefined" ? window.location.origin : "https://priya-foot-wear.vercel.app";
@@ -79,14 +84,35 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        {/* Share Button */}
-        <button 
-          onClick={handleShare}
-          className="absolute top-3 right-3 z-20 p-2 bg-background/80 backdrop-blur-md text-foreground rounded-full shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
-          aria-label="Share product"
-        >
-          <Share2 className="h-4 w-4" />
-        </button>
+        {/* Actions Container */}
+        <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
+          {/* Wishlist Button */}
+          <button 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); }}
+            className={`p-2 rounded-full shadow-sm transition-all duration-300 backdrop-blur-md ${isWishlisted ? 'bg-accent text-accent-foreground' : 'bg-background/80 text-foreground hover:bg-accent hover:text-accent-foreground'}`}
+            aria-label="Wishlist"
+          >
+            <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
+          </button>
+
+          {/* Compare Button */}
+          <button 
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleCompare(product.id); }}
+            className={`p-2 rounded-full shadow-sm transition-all duration-300 backdrop-blur-md hidden sm:block ${isCompared ? 'bg-foreground text-background' : 'bg-background/80 text-foreground hover:bg-foreground hover:text-background'}`}
+            aria-label="Compare"
+          >
+            <Scale className="h-4 w-4" />
+          </button>
+
+          {/* Share Button */}
+          <button 
+            onClick={handleShare}
+            className="p-2 bg-background/80 backdrop-blur-md text-foreground rounded-full shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
+            aria-label="Share product"
+          >
+            <Share2 className="h-4 w-4" />
+          </button>
+        </div>
 
         {/* Product Image Wrapper */}
         <div className="absolute inset-4">
@@ -138,6 +164,14 @@ export default function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
         </div>
+
+        {/* Popularity indicator */}
+        {(product.view_count || 0) > 0 && (
+          <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground font-medium mb-3">
+            <Eye className="h-3 w-3" />
+            {product.view_count} people viewed this
+          </div>
+        )}
 
         {/* WhatsApp Call to Action */}
         <a

@@ -3,14 +3,17 @@
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
 import PillNav from "@/components/PillNav";
-import { Sun, Moon, PhoneCall } from "lucide-react";
+import { Sun, Moon, PhoneCall, Heart, Scale } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useCustomerExperience } from "@/context/CustomerExperienceContext";
+import Link from "next/link";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { wishlist, compareList } = useCustomerExperience();
 
   // Shrink/Solidify header background on scroll
   useEffect(() => {
@@ -74,6 +77,34 @@ export default function Navbar() {
               <Moon className="h-4.5 w-4.5" />
             )}
           </button>
+
+          {/* Wishlist Link */}
+          <Link
+            href="/wishlist"
+            className="relative p-2.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 text-muted-foreground hover:text-accent transition-colors duration-200"
+            aria-label="Wishlist"
+          >
+            <Heart className="h-4.5 w-4.5" />
+            {mounted && wishlist.length > 0 && (
+              <span className="absolute top-1 right-1 h-4 w-4 flex items-center justify-center rounded-full bg-accent text-accent-foreground text-[9px] font-bold">
+                {wishlist.length}
+              </span>
+            )}
+          </Link>
+
+          {/* Compare Link */}
+          <Link
+            href="/compare"
+            className="relative p-2.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 text-muted-foreground hover:text-accent transition-colors duration-200 hidden lg:flex"
+            aria-label="Compare Products"
+          >
+            <Scale className="h-4.5 w-4.5" />
+            {mounted && compareList.length > 0 && (
+              <span className="absolute top-1 right-1 h-4 w-4 flex items-center justify-center rounded-full bg-foreground text-background text-[9px] font-bold shadow-sm">
+                {compareList.length}
+              </span>
+            )}
+          </Link>
 
           {/* Hot call button */}
           <a
