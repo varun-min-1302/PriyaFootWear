@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCustomerExperience } from "@/context/CustomerExperienceContext";
-import { getProductsByIds } from "@/app/actions/productActions";
+import { createClient } from "@/lib/supabase/client";
 import { Product } from "@/types/product";
 import { Loader2, ArrowLeftRight, X } from "lucide-react";
 import Link from "next/link";
@@ -21,10 +21,37 @@ export default function CompareClient() {
         return;
       }
       try {
-        const data = await getProductsByIds(compareList);
-        // Order according to how they were added to compare list
-        const ordered = compareList.map(id => data.find(p => p.id === id)).filter(Boolean) as Product[];
-        setProducts(ordered);
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .in("id", compareList);
+
+        if (!error && data) {
+          const formatted: Product[] = data.map((row) => ({
+            id: row.id,
+            name: row.name,
+            slug: row.slug,
+            description: row.description,
+            price: Number(row.price),
+            category: row.category as any,
+            sizes: row.sizes || [],
+            colors: row.colors || [],
+            images: row.images || [],
+            material: row.material,
+            featured: row.featured,
+            newArrival: row.newArrival,
+            original_price: row.original_price ? Number(row.original_price) : undefined,
+            enquiry_count: row.enquiry_count,
+            share_count: row.share_count,
+            view_count: row.view_count,
+            status: row.status as any,
+            createdAt: row.createdAt || row.created_at,
+          }));
+          // Order according to how they were added to compare list
+          const ordered = compareList.map(id => formatted.find(p => p.id === id)).filter(Boolean) as Product[];
+          setProducts(ordered);
+        }
       } catch (e) {
         console.error("Failed to load compare products", e);
       } finally {

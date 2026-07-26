@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCustomerExperience } from "@/context/CustomerExperienceContext";
-import { getProductsByIds } from "@/app/actions/productActions";
+import { createClient } from "@/lib/supabase/client";
 import { Product } from "@/types/product";
 import ProductCard from "@/components/ProductCard";
 import { Heart, Loader2 } from "lucide-react";
@@ -21,8 +21,35 @@ export default function WishlistClient() {
         return;
       }
       try {
-        const data = await getProductsByIds(wishlist);
-        setProducts(data);
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .in("id", wishlist);
+
+        if (!error && data) {
+          const formatted: Product[] = data.map((row) => ({
+            id: row.id,
+            name: row.name,
+            slug: row.slug,
+            description: row.description,
+            price: Number(row.price),
+            category: row.category as any,
+            sizes: row.sizes || [],
+            colors: row.colors || [],
+            images: row.images || [],
+            material: row.material,
+            featured: row.featured,
+            newArrival: row.newArrival,
+            original_price: row.original_price ? Number(row.original_price) : undefined,
+            enquiry_count: row.enquiry_count,
+            share_count: row.share_count,
+            view_count: row.view_count,
+            status: row.status as any,
+            createdAt: row.createdAt || row.created_at,
+          }));
+          setProducts(formatted);
+        }
       } catch (e) {
         console.error("Failed to load wishlist products", e);
       } finally {

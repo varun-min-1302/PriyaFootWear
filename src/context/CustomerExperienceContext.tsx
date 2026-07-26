@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 
 interface CustomerExperienceContextType {
   wishlist: string[];
@@ -68,7 +68,7 @@ export function CustomerExperienceProvider({ children }: { children: React.React
     }
   }, [compareList, isMounted]);
 
-  const toggleWishlist = (productId: string) => {
+  const toggleWishlist = useCallback((productId: string) => {
     setWishlist((prev) => {
       if (prev.includes(productId)) {
         return prev.filter((id) => id !== productId);
@@ -76,18 +76,18 @@ export function CustomerExperienceProvider({ children }: { children: React.React
         return [...prev, productId];
       }
     });
-  };
+  }, []);
 
-  const isInWishlist = (productId: string) => wishlist.includes(productId);
+  const isInWishlist = useCallback((productId: string) => wishlist.includes(productId), [wishlist]);
 
-  const addRecentlyViewed = (productId: string) => {
+  const addRecentlyViewed = useCallback((productId: string) => {
     setRecentlyViewed((prev) => {
       const filtered = prev.filter((id) => id !== productId);
       return [productId, ...filtered].slice(0, 10);
     });
-  };
+  }, []);
 
-  const toggleCompare = (productId: string) => {
+  const toggleCompare = useCallback((productId: string) => {
     setCompareList((prev) => {
       if (prev.includes(productId)) {
         return prev.filter((id) => id !== productId);
@@ -99,23 +99,23 @@ export function CustomerExperienceProvider({ children }: { children: React.React
         return [...prev, productId];
       }
     });
-  };
+  }, []);
 
-  const isInCompare = (productId: string) => compareList.includes(productId);
+  const isInCompare = useCallback((productId: string) => compareList.includes(productId), [compareList]);
+
+  const contextValue = useMemo(() => ({
+    wishlist,
+    toggleWishlist,
+    isInWishlist,
+    recentlyViewed,
+    addRecentlyViewed,
+    compareList,
+    toggleCompare,
+    isInCompare,
+  }), [wishlist, toggleWishlist, isInWishlist, recentlyViewed, addRecentlyViewed, compareList, toggleCompare, isInCompare]);
 
   return (
-    <CustomerExperienceContext.Provider
-      value={{
-        wishlist,
-        toggleWishlist,
-        isInWishlist,
-        recentlyViewed,
-        addRecentlyViewed,
-        compareList,
-        toggleCompare,
-        isInCompare,
-      }}
-    >
+    <CustomerExperienceContext.Provider value={contextValue}>
       {children}
     </CustomerExperienceContext.Provider>
   );
