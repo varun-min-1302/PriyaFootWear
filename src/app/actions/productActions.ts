@@ -14,7 +14,7 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
     .in("id", ids);
 
   if (error) {
-    console.error("Error fetching products by ids:", error.message);
+    console.error("Error fetching products by ids:", (error as Error).message);
     return [];
   }
 

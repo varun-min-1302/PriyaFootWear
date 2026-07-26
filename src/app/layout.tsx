@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { CustomerExperienceProvider } from "@/context/CustomerExperienceContext";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -92,9 +93,11 @@ export default function RootLayout({
           {/* Subtle design texture */}
           <div className="noise-overlay" />
           
-          <Navbar />
-          <main className="flex-grow flex flex-col">{children}</main>
-          <Footer />
+          <CustomerExperienceProvider>
+            <Navbar />
+            <main className="flex-grow flex flex-col">{children}</main>
+            <Footer />
+          </CustomerExperienceProvider>
         </ThemeProvider>
       </body>
     </html>

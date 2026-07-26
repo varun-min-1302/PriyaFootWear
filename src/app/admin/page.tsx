@@ -1,12 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Product } from "@/types/product";
 import { Plus, Pencil, Trash2, Star, Sparkles, X, ShieldAlert, Archive, Lock, Phone, Eye, EyeOff, LogIn, LogOut, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { createProductAction, updateProductAction, deleteProductAction, toggleFeaturedAction, toggleNewArrivalAction, uploadImageAction } from "@/app/actions/adminActions";
+
+const generateId = () => Math.random().toString(36).substring(2,6);
+
+const compressImage = (file: File): Promise<File> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const MAX_WIDTH = 1600;
+        let width = img.width;
+        let height = img.height;
+        if (width > MAX_WIDTH) {
+          height = Math.round((height * MAX_WIDTH) / width);
+          width = MAX_WIDTH;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressed = new File([blob], file.name.replace(/\.[^/.]+$/, ".webp"), { type: "image/webp" });
+              resolve(compressed);
+            } else {
+              resolve(file);
+            }
+          },
+          "image/webp",
+          0.85
+        );
+      };
+    };
+  });
+};
 
 export default function AdminDashboard() {
   const supabase = createClient();
@@ -23,7 +62,7 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
-  const fetchProducts = React.useCallback(async () => {
+  const fetchProducts = useCallback(async () => {
     setIsLoadingProducts(true);
     const { data } = await supabase
       .from("products")
@@ -119,7 +158,7 @@ export default function AdminDashboard() {
     setEditingProduct(product);
     setName(product.name);
     setPrice(product.price);
-    setCategory(product.category as any);
+    setCategory(product.category as "Formal" | "Casual" | "Sports" | "Sandals" | "Slippers" | "Belts");
     setMaterial(product.material || "");
     setDescription(product.description);
     setSizesInput(product.sizes.join(", "));
@@ -188,9 +227,9 @@ export default function AdminDashboard() {
       await fetchProducts();
       resetForm();
       setIsAddOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert(err.message || "Error adding product");
+      alert((err as Error).message || "Error adding product");
     } finally {
       setIsSubmitting(false);
     }
@@ -234,9 +273,9 @@ export default function AdminDashboard() {
       await fetchProducts();
       resetForm();
       setIsEditOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      alert(err.message || "Error updating product");
+      alert((err as Error).message || "Error updating product");
     } finally {
       setIsSubmitting(false);
     }
@@ -247,8 +286,8 @@ export default function AdminDashboard() {
     try {
       await deleteProductAction(id);
       await fetchProducts();
-    } catch (err: any) {
-      alert(err.message || "Error deleting product");
+    } catch (err: unknown) {
+      alert((err as Error).message || "Error deleting product");
     }
   };
 
@@ -256,8 +295,8 @@ export default function AdminDashboard() {
     try {
       await toggleFeaturedAction(id, current);
       await fetchProducts();
-    } catch (err: any) {
-      alert(err.message || "Error toggling featured");
+    } catch (err: unknown) {
+      alert((err as Error).message || "Error toggling featured");
     }
   };
 
@@ -265,8 +304,8 @@ export default function AdminDashboard() {
     try {
       await toggleNewArrivalAction(id, current);
       await fetchProducts();
-    } catch (err: any) {
-      alert(err.message || "Error toggling new arrival");
+    } catch (err: unknown) {
+      alert((err as Error).message || "Error toggling new arrival");
     }
   };
 
@@ -622,7 +661,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs uppercase tracking-widest text-muted-foreground font-extrabold block">Category</label>
-                    <select value={category} onChange={(e) => setCategory(e.target.value as any)} className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm">
+                    <select value={category} onChange={(e) => setCategory(e.target.value as "Formal" | "Casual" | "Sports" | "Sandals" | "Slippers" | "Belts")} className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm">
                       <option value="Formal">Formal Shoes</option>
                       <option value="Casual">Casual Shoes</option>
                       <option value="Sports">Sports Shoes</option>

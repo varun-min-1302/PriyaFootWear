@@ -26,7 +26,7 @@ export default async function ProductsPage() {
 
   if (error) {
     console.error("Error fetching products:", JSON.stringify(error, null, 2));
-    console.error("Error message:", error.message);
+    console.error("Error message:", (error as Error).message);
     console.error("Error code:", error.code);
     console.error("Error details:", error.details);
     console.error("Error hint:", error.hint);
