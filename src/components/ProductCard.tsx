@@ -85,11 +85,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Actions Container */}
-        <div className="absolute top-3 right-3 z-20 flex flex-col gap-2">
+        <div className="absolute top-3 right-3 z-20 flex gap-2">
           {/* Wishlist Button */}
           <button 
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(product.id); }}
-            className={`p-2 rounded-full shadow-sm transition-all duration-300 backdrop-blur-md ${isWishlisted ? 'bg-accent text-accent-foreground' : 'bg-background/80 text-foreground hover:bg-accent hover:text-accent-foreground'}`}
+            className={`p-2 min-w-[36px] min-h-[36px] rounded-full shadow-sm transition-all duration-300 backdrop-blur-md flex items-center justify-center ${isWishlisted ? 'bg-accent text-accent-foreground' : 'bg-background/80 text-foreground hover:bg-accent hover:text-accent-foreground'}`}
             aria-label="Wishlist"
           >
             <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
@@ -98,7 +98,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Compare Button */}
           <button 
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleCompare(product.id); }}
-            className={`p-2 rounded-full shadow-sm transition-all duration-300 backdrop-blur-md hidden sm:block ${isCompared ? 'bg-foreground text-background' : 'bg-background/80 text-foreground hover:bg-foreground hover:text-background'}`}
+            className={`p-2 min-w-[36px] min-h-[36px] rounded-full shadow-sm transition-all duration-300 backdrop-blur-md flex items-center justify-center ${isCompared ? 'bg-foreground text-background' : 'bg-background/80 text-foreground hover:bg-foreground hover:text-background'}`}
             aria-label="Compare"
           >
             <Scale className="h-4 w-4" />
@@ -107,7 +107,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Share Button */}
           <button 
             onClick={handleShare}
-            className="p-2 bg-background/80 backdrop-blur-md text-foreground rounded-full shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors duration-300"
+            className="p-2 min-w-[36px] min-h-[36px] bg-background/80 backdrop-blur-md text-foreground rounded-full shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors duration-300 flex items-center justify-center"
             aria-label="Share product"
           >
             <Share2 className="h-4 w-4" />

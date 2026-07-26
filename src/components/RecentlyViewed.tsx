@@ -49,8 +49,8 @@ export default function RecentlyViewed() {
     loadProducts();
   }, [recentlyViewed, mounted]);
 
-  if (!mounted || (products.length === 0 && !loading)) {
-    return null; // Don't render anything if no history
+  if (!mounted) {
+    return null;
   }
 
   return (
@@ -78,6 +78,14 @@ export default function RecentlyViewed() {
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="aspect-[3/4] bg-neutral-100 dark:bg-neutral-900 rounded-3xl" />
             ))}
+          </div>
+        ) : products.length === 0 ? (
+          <div className="bg-neutral-50 dark:bg-neutral-900/50 rounded-3xl p-8 sm:p-12 text-center border border-border/50">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-800 mb-6">
+              <History className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-bold mb-2">Browse products and they'll appear here automatically.</h3>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">Keep track of the footwear you've looked at while exploring our collections.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">

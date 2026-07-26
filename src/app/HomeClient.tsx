@@ -96,13 +96,17 @@ export default function HomeClient({ featuredProducts, newArrivalProducts, bestS
             </div>
           </motion.div>
 
-          {bestSellerProducts.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              No best sellers yet.
+          {(bestSellerProducts.length === 0 ? featuredProducts : bestSellerProducts).length === 0 ? (
+            <div className="bg-neutral-50 dark:bg-neutral-900/50 rounded-3xl p-8 sm:p-12 text-center border border-border/50 max-w-2xl mx-auto">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-neutral-200 dark:bg-neutral-800 mb-6">
+                <TrendingUp className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-bold mb-2">⭐ Popular products will appear here</h3>
+              <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">Once customers start exploring our collection, the most viewed and purchased footwear will be featured here automatically.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6 xl:gap-8">
-              {bestSellerProducts.map((product, idx) => (
+              {(bestSellerProducts.length === 0 ? featuredProducts : bestSellerProducts).map((product, idx) => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 30 }}

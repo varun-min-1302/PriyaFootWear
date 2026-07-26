@@ -307,40 +307,53 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             )}
 
             {/* Action Buttons CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-border/40">
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => recordProductEnquiry(product.id).catch(console.error)}
-                className="flex-grow flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-widest transition-all duration-300 shadow-lg shadow-emerald-950/10 hover:shadow-emerald-950/20 active:scale-95"
-              >
-                <MessageSquare className="h-4.5 w-4.5" />
-                WhatsApp Inquiry
-              </a>
+            <div className="flex flex-col gap-4 pt-6 border-t border-border/40">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => recordProductEnquiry(product.id).catch(console.error)}
+                  className="flex-grow flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs uppercase tracking-widest transition-all duration-300 shadow-lg shadow-emerald-950/10 hover:shadow-emerald-950/20 active:scale-95"
+                >
+                  <MessageSquare className="h-4.5 w-4.5" />
+                  WhatsApp Inquiry
+                </a>
 
-              <a
-                href="tel:+918374284265"
-                className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-neutral-900 border border-neutral-800 text-white hover:bg-neutral-800 font-extrabold text-xs uppercase tracking-widest transition-all duration-300 active:scale-95"
-              >
-                <PhoneCall className="h-4.5 w-4.5 text-accent" />
-                Call Store
-              </a>
+                <a
+                  href="tel:+918374284265"
+                  className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-3 px-8 py-5 rounded-2xl bg-neutral-900 border border-neutral-800 text-white hover:bg-neutral-800 font-extrabold text-xs uppercase tracking-widest transition-all duration-300 active:scale-95"
+                >
+                  <PhoneCall className="h-4.5 w-4.5 text-accent" />
+                  Call Store
+                </a>
+              </div>
               
-              <button 
-                onClick={() => toggleWishlist(product.id)}
-                className={`flex-grow sm:flex-grow-0 flex items-center justify-center gap-3 px-6 py-5 rounded-2xl border font-extrabold text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 ${isWishlisted ? 'bg-accent border-accent text-accent-foreground' : 'border-border/80 text-muted-foreground hover:border-foreground/30 hover:text-foreground'}`}
-              >
-                <Heart className={`h-4.5 w-4.5 ${isWishlisted ? 'fill-current' : ''}`} />
-              </button>
+              <div className="flex flex-wrap items-center gap-3 mt-2">
+                <button 
+                  onClick={() => toggleWishlist(product.id)}
+                  className={`flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 px-5 py-4 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all duration-300 active:scale-95 ${isWishlisted ? 'bg-accent border-accent text-accent-foreground' : 'bg-background hover:bg-accent/5 border-border text-foreground hover:border-accent/30'}`}
+                >
+                  <Heart className={`h-4 w-4 ${isWishlisted ? 'fill-current' : ''}`} />
+                  Add to Wishlist
+                </button>
 
-              <button 
-                onClick={() => toggleCompare(product.id)}
-                className={`flex-grow sm:flex-grow-0 flex items-center justify-center gap-3 px-6 py-5 rounded-2xl border font-extrabold text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 hidden lg:flex ${isCompared ? 'bg-foreground border-foreground text-background' : 'border-border/80 text-muted-foreground hover:border-foreground/30 hover:text-foreground'}`}
-                title="Compare Product"
-              >
-                <Scale className="h-4.5 w-4.5" />
-              </button>
+                <button 
+                  onClick={() => toggleCompare(product.id)}
+                  className={`flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 px-5 py-4 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all duration-300 active:scale-95 ${isCompared ? 'bg-foreground border-foreground text-background' : 'bg-background hover:bg-foreground/5 border-border text-foreground hover:border-foreground/30'}`}
+                >
+                  <Scale className="h-4 w-4" />
+                  Compare
+                </button>
+
+                <button 
+                  onClick={handleShare}
+                  className="flex-grow sm:flex-grow-0 flex items-center justify-center gap-2 px-5 py-4 rounded-xl border border-border bg-background hover:bg-accent/5 text-foreground hover:border-accent/30 font-bold text-xs uppercase tracking-wider transition-all duration-300 active:scale-95"
+                >
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </button>
+              </div>
             </div>
           </div>
         </div>
