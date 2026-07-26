@@ -14,6 +14,8 @@ export default function Navbar() {
 
   // Shrink/Solidify header background on scroll
   useEffect(() => {
+    // intentionally correct for hydration
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const handleScroll = () => {
       if (window.scrollY > 20) {

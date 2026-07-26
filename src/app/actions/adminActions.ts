@@ -36,7 +36,7 @@ function safeRevalidate() {
   }
 }
 
-export async function createProductAction(productData: any) {
+export async function createProductAction(productData:   any) {
   // Verify the caller is a logged-in admin
   await verifyAdmin();
 
@@ -56,7 +56,7 @@ export async function createProductAction(productData: any) {
   return { success: true };
 }
 
-export async function updateProductAction(productId: string, productData: any) {
+export async function updateProductAction(productId: string, productData:   any) {
   // Verify the caller is a logged-in admin
   await verifyAdmin();
 

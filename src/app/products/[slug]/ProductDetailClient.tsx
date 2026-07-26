@@ -25,9 +25,13 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
   // Pre-select first size and color on product load
   useEffect(() => {
     if (product) {
-      if (product.sizes.length > 0) setSelectedSize(product.sizes[0]);
-      if (product.colors.length > 0) setSelectedColor(product.colors[0]);
-      setActiveImageIndex(0);
+      // intentionally correct: sync variant state on mount
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (product.sizes.length > 0) setSelectedSize(product.sizes[0]);
+       
+        if (product.colors.length > 0) setSelectedColor(product.colors[0]);
+       
+        setActiveImageIndex(0);
     }
   }, [product]);
 

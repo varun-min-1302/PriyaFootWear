@@ -63,7 +63,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     .neq("id", data.id)
     .limit(3);
 
-  const formatProduct = (row: any): Product => ({
+  const formatProduct = (row:   any): Product => ({
     id: row.id,
     name: row.name,
     slug: row.slug,

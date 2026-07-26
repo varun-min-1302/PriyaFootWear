@@ -39,7 +39,7 @@ export default function WhyChooseUs() {
             Why Choose Priya Foot Wear?
           </h2>
           <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-            For decades, we've focused on delivering an elite walking experience. We believe premium footwear shouldn't just look luxury; it must feel it.
+            For decades, we&apos;ve focused on delivering an elite walking experience. We believe premium footwear shouldn&apos;t just look luxury; it must feel it.
           </p>
         </div>
 

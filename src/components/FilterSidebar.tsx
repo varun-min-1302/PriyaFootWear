@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useProductStore } from "@/store/useProductStore";
-import { X, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 export default function FilterSidebar() {
   const products = useProductStore((state) => state.products);

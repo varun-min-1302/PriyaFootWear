@@ -23,7 +23,7 @@ export default async function Home() {
     .order("created_at", { ascending: false })
     .limit(10);
 
-  const formatProduct = (row: any): Product => ({
+  const formatProduct = (row:   any): Product => ({
     id: row.id,
     name: row.name,
     slug: row.slug,

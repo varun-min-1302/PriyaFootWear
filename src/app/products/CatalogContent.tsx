@@ -46,7 +46,7 @@ export default function CatalogContent({ initialProducts }: CatalogContentProps)
       {/* Editorial Header */}
       <div className="border-b border-border/40 pb-8 mb-10 space-y-4">
         <h1 className="text-fluid-h2 font-display font-black tracking-tight uppercase">
-          Men's Collection
+          Men&apos;s Collection
         </h1>
         <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed font-sans">
           Browse our premium range of formal wear, casual sneakers, sports running shoes, and comfortable home slides. Every shoe is designed for excellence.
@@ -121,7 +121,7 @@ export default function CatalogContent({ initialProducts }: CatalogContentProps)
             )}
             {filters.searchQuery && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-muted text-foreground text-xs rounded-full border border-border/40 font-medium">
-                Search: "{filters.searchQuery}"
+                Search: &quot;{filters.searchQuery}&quot;
               </span>
             )}
           </div>
@@ -133,7 +133,7 @@ export default function CatalogContent({ initialProducts }: CatalogContentProps)
               <div className="space-y-1.5">
                 <h3 className="font-display font-bold text-lg">No Footwear Matches</h3>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                  We couldn't find any shoes that match your search filters. Try resetting the filters or broadening your terms.
+                  We couldn&apos;t find any shoes that match your search filters. Try resetting the filters or broadening your terms.
                 </p>
               </div>
               <button

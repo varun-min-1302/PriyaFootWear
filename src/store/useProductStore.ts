@@ -53,7 +53,7 @@ export const useProductStore = create<ProductStore>((set, get) => ({
   getFilteredProducts: () => {
     const { products, filters, sortOption } = get();
     
-    let result = products.filter((product) => {
+    const result = products.filter((product) => {
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase().trim();
         const matchesName = product.name.toLowerCase().includes(query);

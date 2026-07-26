@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useRef, useState, useMemo } from "react";
@@ -66,6 +67,8 @@ const PillNav = ({
   const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
+    // intentionally correct for hydration
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     const layout = () => {
       circleRefs.current.forEach((circle) => {

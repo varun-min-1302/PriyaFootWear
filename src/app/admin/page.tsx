@@ -23,20 +23,7 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
-  // Check Session
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setIsLoggedIn(true);
-        fetchProducts();
-      }
-      setIsLoggingIn(false);
-    };
-    checkSession();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = React.useCallback(async () => {
     setIsLoadingProducts(true);
     const { data } = await supabase
       .from("products")
@@ -62,7 +49,20 @@ export default function AdminDashboard() {
       setProducts(formatted);
     }
     setIsLoadingProducts(false);
-  };
+  }, [supabase]);
+
+  // Check Session
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsLoggedIn(true);
+        fetchProducts();
+      }
+      setIsLoggingIn(false);
+    };
+    checkSession();
+  }, [supabase, fetchProducts]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
 
       const sizes = sizesInput.split(",").map((s) => s.trim()).filter(Boolean);
       const colors = colorsInput.split(",").map((c) => c.trim()).filter(Boolean);
-      const slug = name.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "") + "-" + Math.random().toString(36).substring(2,6);
+      const slug = name.toLowerCase().trim().replace(/[^\w\s-]/g, "").replace(/[\s_-]+/g, "-").replace(/^-+|-+$/g, "") + "-" + generateId();
 
       const productData = {
         name: name.trim(),
