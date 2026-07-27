@@ -8,13 +8,6 @@ import { useState, useEffect } from "react";
 import { useCustomerExperience } from "@/context/CustomerExperienceContext";
 import Link from "next/link";
 
-const navItems = [
-  { label: "Home", href: "/" },
-  { label: "Collection", href: "/products" },
-  { label: "About", href: "/about" },
-  { label: "Contact", href: "/contact" },
-];
-
 export default function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
@@ -38,6 +31,12 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const navItems = [
+    { label: "Home", href: "/" },
+    { label: "Collection", href: "/products" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" },
+  ];
 
   return (
     <header

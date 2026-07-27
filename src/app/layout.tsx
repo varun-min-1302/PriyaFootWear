@@ -91,7 +91,7 @@ export default function RootLayout({
             })
           }}
         />
-        <ThemeProvider defaultTheme="dark">
+        <ThemeProvider defaultTheme="light">
           {/* Subtle design texture */}
           <div className="noise-overlay" />
           
