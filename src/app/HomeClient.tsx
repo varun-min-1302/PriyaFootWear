@@ -1,7 +1,7 @@
 "use client";
 
 import Hero from "@/components/Hero";
-import FeaturedCategories from "@/components/FeaturedCategories";
+import FeaturedCategories, { CategoryItem } from "@/components/FeaturedCategories";
 import ProductCard from "@/components/ProductCard";
 import WhyChooseUs from "@/components/WhyChooseUs";
 import NewArrivals from "@/components/NewArrivals";
@@ -16,13 +16,15 @@ interface HomeClientProps {
   featuredProducts: Product[];
   newArrivalProducts: Product[];
   bestSellerProducts: Product[];
+  heroProducts: Product[];
+  categories?: CategoryItem[];
 }
 
-export default function HomeClient({ featuredProducts, newArrivalProducts, bestSellerProducts }: HomeClientProps) {
+export default function HomeClient({ featuredProducts, newArrivalProducts, bestSellerProducts, heroProducts, categories }: HomeClientProps) {
   return (
     <div className="flex flex-col min-h-screen">
-      <Hero products={featuredProducts.slice(0, 3)} />
-      <FeaturedCategories />
+      <Hero />
+      <FeaturedCategories categories={categories} />
 
       <section className="py-24 bg-neutral-50 dark:bg-neutral-900/10 border-t border-border/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

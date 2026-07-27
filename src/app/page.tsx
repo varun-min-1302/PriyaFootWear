@@ -1,6 +1,7 @@
 import HomeClient from "./HomeClient";
 import { createClient } from "@/lib/supabase/server";
 import { Product } from "@/types/product";
+import { CategoryItem } from "@/components/FeaturedCategories";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,47 @@ export default async function Home() {
     .order("created_at", { ascending: false })
     .limit(10);
 
-  const formatProduct = (row:   any): Product => ({
+  // Dynamic category aggregation from database
+  const { data: allCatProducts } = await supabase
+    .from("products")
+    .select("category, images, created_at")
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+
+  const categoryMap: Record<string, { count: number; image: string }> = {};
+
+  (allCatProducts || []).forEach((row) => {
+    const rawCat = row.category ? row.category.trim() : "";
+    if (!rawCat) return;
+
+    if (!categoryMap[rawCat]) {
+      const img = Array.isArray(row.images) && row.images.length > 0 ? row.images[0] : "";
+      categoryMap[rawCat] = {
+        count: 1,
+        image: img,
+      };
+    } else {
+      categoryMap[rawCat].count += 1;
+    }
+  });
+
+  const categories: CategoryItem[] = Object.entries(categoryMap).map(([catName, info]) => {
+    let displayName = catName;
+    const lower = catName.toLowerCase();
+    if (!lower.includes("collection") && !lower.includes("flip-flop") && !lower.includes("belt") && !lower.includes("slipper")) {
+      displayName = `${catName} Collection`;
+    }
+
+    return {
+      name: displayName,
+      slug: catName,
+      image: info.image,
+      count: info.count,
+      description: `Explore our latest ${catName.toLowerCase()} range (${info.count} ${info.count === 1 ? 'item' : 'items'}).`,
+    };
+  });
+
+  const formatProduct = (row: any): Product => ({
     id: row.id,
     name: row.name,
     slug: row.slug,
@@ -53,11 +94,24 @@ export default async function Home() {
   const newArrivalProducts: Product[] = (newArrivalData || []).map(formatProduct);
   const bestSellerProducts: Product[] = (bestSellerData || []).map(formatProduct);
 
+  let heroProducts = featuredProducts.slice(0, 3);
+  if (heroProducts.length === 0) {
+    const { data: anyData } = await supabase
+      .from("products")
+      .select("*")
+      .eq("status", "published")
+      .order("created_at", { ascending: false })
+      .limit(3);
+    heroProducts = (anyData || []).map(formatProduct);
+  }
+
   return (
     <HomeClient 
       featuredProducts={featuredProducts} 
       newArrivalProducts={newArrivalProducts}
       bestSellerProducts={bestSellerProducts}
+      heroProducts={heroProducts}
+      categories={categories}
     />
   );
 }
