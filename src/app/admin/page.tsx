@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Product } from "@/types/product";
-import { Plus, Pencil, Trash2, Star, Sparkles, X, ShieldAlert, Archive, Lock, Phone, Eye, EyeOff, LogIn, LogOut, Loader2, Copy, TrendingUp, MessageCircle, Share2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Sparkles, X, ShieldAlert, Archive, Lock, Phone, Eye, EyeOff, LogIn, LogOut, Loader2, Copy, TrendingUp, MessageCircle, Share2, KeyRound, CheckCircle2, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { createProductAction, updateProductAction, deleteProductAction, toggleFeaturedAction, toggleNewArrivalAction, uploadImageAction } from "@/app/actions/adminActions";
+import { createProductAction, updateProductAction, deleteProductAction, toggleFeaturedAction, toggleNewArrivalAction, uploadImageAction, changePasswordAction } from "@/app/actions/adminActions";
 
 const generateId = () => Math.random().toString(36).substring(2,6);
 
@@ -112,8 +112,10 @@ export default function AdminDashboard() {
     setIsLoggingIn(true);
     setLoginError("");
 
-    const cleanPhone = phone.replace(/\D/g, "");
-    const mappedEmail = `${cleanPhone}@admin.com`;
+    const cleanInput = phone.trim();
+    const mappedEmail = cleanInput.includes("@")
+      ? cleanInput.toLowerCase()
+      : `${cleanInput.replace(/\D/g, "")}@admin.com`;
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: mappedEmail,
@@ -121,7 +123,7 @@ export default function AdminDashboard() {
     });
 
     if (error) {
-      setLoginError("Invalid mobile number or security password.");
+      setLoginError("Invalid credentials or security password.");
     } else if (data.session) {
       setIsLoggedIn(true);
       fetchProducts();
@@ -132,6 +134,61 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setIsLoggedIn(false);
+  };
+
+  // Security / Change Password State
+  const [isSecurityOpen, setIsSecurityOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPass, setShowCurrentPass] = useState(false);
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
+  const [securityError, setSecurityError] = useState("");
+  const [securitySuccess, setSecuritySuccess] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSecurityError("");
+    setSecuritySuccess("");
+
+    if (newPassword.length < 8) {
+      setSecurityError("New password must be at least 8 characters long.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setSecurityError("New password and confirmation do not match.");
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      setSecurityError("New password must be different from current password.");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      const result = await changePasswordAction({
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      });
+
+      if (!result.success) {
+        setSecurityError(result.error || "Failed to change password.");
+      } else {
+        setSecuritySuccess(result.message || "Password successfully changed!");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (err: unknown) {
+      setSecurityError((err as Error).message || "An unexpected error occurred.");
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   // Dialog / Modal Visibility States
@@ -397,16 +454,16 @@ export default function AdminDashboard() {
             <form onSubmit={handleLoginSubmit} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground block">
-                  Registered Mobile Number
+                  Registered Mobile Number or Email
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
                     <Phone className="h-4 w-4" />
                   </div>
                   <input
-                    type="tel"
+                    type="text"
                     required
-                    placeholder="Enter 10-digit number"
+                    placeholder="Enter 10-digit number or admin email"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full pl-11 pr-4 py-3.5 bg-neutral-50 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 rounded-xl text-sm placeholder-neutral-400 dark:placeholder-neutral-600 focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/60 text-foreground transition-all duration-300 font-semibold"
@@ -419,6 +476,12 @@ export default function AdminDashboard() {
                   <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground block">
                     Security Password
                   </label>
+                  <Link
+                    href="/admin/forgot-password"
+                    className="text-[11px] font-bold text-accent hover:underline uppercase tracking-wider transition-colors duration-200"
+                  >
+                    Forgot password?
+                  </Link>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-500">
@@ -494,6 +557,20 @@ export default function AdminDashboard() {
             >
               <Plus className="h-4.5 w-4.5" />
               Add Footwear
+            </button>
+            <button
+              onClick={() => {
+                setSecurityError("");
+                setSecuritySuccess("");
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmPassword("");
+                setIsSecurityOpen(true);
+              }}
+              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-border/80 text-foreground font-bold text-xs uppercase tracking-widest hover:border-accent hover:text-accent transition-all duration-300 shadow-sm cursor-pointer"
+            >
+              <KeyRound className="h-4.5 w-4.5" />
+              Change Password
             </button>
             <button
               onClick={handleLogout}
@@ -673,6 +750,40 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* Security & Password Section Card */}
+        <div className="bg-card border border-border/40 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="p-3.5 rounded-2xl bg-accent/10 text-accent shrink-0">
+              <KeyRound className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-accent">
+                Account Security
+              </span>
+              <h3 className="text-lg font-display font-bold text-foreground">
+                Administrator Password & Security
+              </h3>
+              <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
+                Update your administrative credentials securely. A minimum of 8 characters is required, along with validation of your current password.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setSecurityError("");
+              setSecuritySuccess("");
+              setCurrentPassword("");
+              setNewPassword("");
+              setConfirmPassword("");
+              setIsSecurityOpen(true);
+            }}
+            className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-xs uppercase tracking-widest transition-all duration-300 shadow-md shadow-accent/10 shrink-0 cursor-pointer active:scale-[0.98]"
+          >
+            <KeyRound className="h-4 w-4" />
+            Change Password
+          </button>
+        </div>
+
         {/* Modal: ADD / EDIT DIALOG FORM SHEET */}
         {(isAddOpen || isEditOpen) && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -792,6 +903,165 @@ export default function AdminDashboard() {
                   <button type="submit" disabled={isSubmitting} className="px-6 py-3 rounded-xl bg-accent text-accent-foreground font-extrabold text-xs uppercase shadow-md disabled:opacity-50 flex items-center gap-2">
                     {isSubmitting && <Loader2 className="animate-spin h-4 w-4" />}
                     {isEditOpen ? "Save Changes" : "Create Product"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: SECURITY / CHANGE PASSWORD */}
+        {isSecurityOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              onClick={() => {
+                if (!isChangingPassword) {
+                  setIsSecurityOpen(false);
+                }
+              }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            />
+
+            <div className="relative bg-card border border-border/40 rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden z-10 shadow-2xl">
+              <div className="px-6 py-5 border-b border-border/40 flex justify-between items-center">
+                <div className="flex items-center gap-2.5">
+                  <KeyRound className="h-5 w-5 text-accent" />
+                  <h3 className="font-display font-black text-lg uppercase tracking-wide">
+                    Change Password
+                  </h3>
+                </div>
+                <button
+                  disabled={isChangingPassword}
+                  onClick={() => setIsSecurityOpen(false)}
+                  className="p-1.5 rounded-full bg-muted/60 text-foreground hover:bg-muted transition-colors cursor-pointer"
+                  aria-label="Close dialog"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleChangePasswordSubmit} className="p-6 space-y-5 overflow-y-auto">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Enter your current password to authorize this change, followed by your new password.
+                </p>
+
+                {/* Current Password */}
+                <div className="space-y-2">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground font-extrabold block">
+                    Current Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showCurrentPass ? "text" : "password"}
+                      required
+                      placeholder="Enter current password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="w-full pl-4 pr-11 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/60 font-semibold text-foreground placeholder-neutral-400 dark:placeholder-neutral-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPass(!showCurrentPass)}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-500 hover:text-accent cursor-pointer"
+                      aria-label={showCurrentPass ? "Hide current password" : "Show current password"}
+                    >
+                      {showCurrentPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* New Password */}
+                <div className="space-y-2">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground font-extrabold block">
+                    New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showNewPass ? "text" : "password"}
+                      required
+                      placeholder="Minimum 8 characters"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full pl-4 pr-11 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/60 font-semibold text-foreground placeholder-neutral-400 dark:placeholder-neutral-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPass(!showNewPass)}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-500 hover:text-accent cursor-pointer"
+                      aria-label={showNewPass ? "Hide new password" : "Show new password"}
+                    >
+                      {showNewPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Confirm New Password */}
+                <div className="space-y-2">
+                  <label className="text-xs uppercase tracking-widest text-muted-foreground font-extrabold block">
+                    Confirm New Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPass ? "text" : "password"}
+                      required
+                      placeholder="Re-enter new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full pl-4 pr-11 py-3 bg-neutral-50 dark:bg-neutral-900 border border-border/50 rounded-xl text-sm focus:outline-none focus:border-accent/60 focus:ring-1 focus:ring-accent/60 font-semibold text-foreground placeholder-neutral-400 dark:placeholder-neutral-600"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPass(!showConfirmPass)}
+                      className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-neutral-500 hover:text-accent cursor-pointer"
+                      aria-label={showConfirmPass ? "Hide confirm password" : "Show confirm password"}
+                    >
+                      {showConfirmPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Password validation indicators */}
+                <div className="p-3 rounded-xl bg-muted/40 border border-border/40 text-[11px] space-y-1.5 text-muted-foreground">
+                  <div className={`flex items-center gap-1.5 ${newPassword.length >= 8 ? "text-emerald-500 font-bold" : ""}`}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${newPassword.length >= 8 ? "bg-emerald-500" : "bg-neutral-400"}`} />
+                    <span>Minimum 8 characters</span>
+                  </div>
+                  <div className={`flex items-center gap-1.5 ${newPassword && confirmPassword && newPassword === confirmPassword ? "text-emerald-500 font-bold" : ""}`}>
+                    <div className={`w-1.5 h-1.5 rounded-full ${newPassword && confirmPassword && newPassword === confirmPassword ? "bg-emerald-500" : "bg-neutral-400"}`} />
+                    <span>Passwords match</span>
+                  </div>
+                </div>
+
+                {securityError && (
+                  <div className="p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-xs font-semibold flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+                    <span>{securityError}</span>
+                  </div>
+                )}
+
+                {securitySuccess && (
+                  <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                    <span>{securitySuccess}</span>
+                  </div>
+                )}
+
+                <div className="pt-4 border-t border-border/40 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    disabled={isChangingPassword}
+                    onClick={() => setIsSecurityOpen(false)}
+                    className="px-5 py-3 rounded-xl border border-border/80 text-xs uppercase font-bold text-muted-foreground hover:bg-muted/40 cursor-pointer"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isChangingPassword || newPassword.length < 8 || newPassword !== confirmPassword}
+                    className="px-6 py-3 rounded-xl bg-accent text-accent-foreground font-extrabold text-xs uppercase tracking-widest shadow-md hover:bg-accent/90 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    {isChangingPassword && <Loader2 className="animate-spin h-4 w-4" />}
+                    Update Password
                   </button>
                 </div>
               </form>

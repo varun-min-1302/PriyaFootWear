@@ -170,3 +170,63 @@ export async function uploadImageAction(formData: FormData) {
 
   return { publicUrl };
 }
+
+export async function changePasswordAction(formData: {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}) {
+  // 1. Verify caller is an authenticated administrator
+  const { supabase, user } = await verifyAdmin();
+
+  const { currentPassword, newPassword, confirmPassword } = formData;
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    return { success: false, error: "All password fields are required." };
+  }
+
+  if (newPassword.length < 8) {
+    return { success: false, error: "New password must be at least 8 characters long." };
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { success: false, error: "New password and confirmation do not match." };
+  }
+
+  if (newPassword === currentPassword) {
+    return { success: false, error: "New password must be different from current password." };
+  }
+
+  if (!user.email) {
+    return { success: false, error: "Authenticated user email not found." };
+  }
+
+  // 2. Validate current password by reauthenticating with Supabase Auth
+  const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+  const authVerifyClient = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: false } }
+  );
+
+  const { error: signInError } = await authVerifyClient.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+
+  if (signInError) {
+    return { success: false, error: "Current password is incorrect." };
+  }
+
+  // 3. Update password using the authenticated user's session
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (updateError) {
+    return { success: false, error: updateError.message || "Failed to update password." };
+  }
+
+  return { success: true, message: "Your password has been changed successfully." };
+}
+
